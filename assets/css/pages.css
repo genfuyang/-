@@ -444,7 +444,7 @@ body, #container-wrap { background:#ededed; }
 #loadIndicator span:after { padding-left:1ex; content:'loading content...'; }
 .page-scale-wrap { width:595px; height:842px; background: #fff !important; }
 .paper-vertical { width:595px; height:100%; }
-.paper-horizontal { width:1211px; height:854px; }
+.paper-horizontal { width:1816px; height:854px; }
 @media all and (max-height:842px) {
 	.paper-horizontal { margin:0;top:0;}
 	#container > .page { margin:0 auto;}/*pos top for webkit+baker*/
@@ -466,4 +466,11 @@ body, #container-wrap { background:#ededed; }
 	height:800px !important;
 	left:21px !important;
 	top:14px !important;
+}
+
+#item885 {
+	width:404px !important;
+	height:404px !important;
+	left:62px !important;
+	top:120px !important;
 }
