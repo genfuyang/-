@@ -32,7 +32,7 @@ var prefix = (function () {
 var pre = (document.createElement('div').style['WebkitTransform'] != undefined) ? '-webkit-' : '';
 var useSwipe = false;
 var pageMode = 'csv';
-var pageW = 595, pageH = 842;
+var pageW = 1024, pageH = 768;
 var multifile = false;
 if(multifile) { 
 	$('html').addClass('multifile'); 
@@ -55,8 +55,8 @@ var interactiveSelectors = 'a,button,input,select,textarea,.mejs-overlay-button,
 var sliderSettings = {}, nav = {}, in5 = {layouts:[
  	{
  		"class": "mq-none mq-default",
- 		"width": 595.275590551,
- 		"height": 841.889763778,
+ 		"width": 1024,
+ 		"height": 768,
  		"default": true,
  		"trigger": "default",
  		"index": 0
@@ -375,6 +375,76 @@ function animateImageSeq(dir,rev,msoID,loopSwipe,velocity,startTime){
 function calculateVelocity(e, dist, dur) {
 	var mouse_ratio = 20 / getCurrentScale($('#container')), touch_ratio = 1;
   return dist / dur / (e.pageX ? mouse_ratio : touch_ratio);
+}
+function initPanZoom() {
+	$('.panzoom').on('dblclick', function (e) {
+		var cel = e.target, cw = $(cel).removeClass('dragging').width(), ch = $(cel).height(), 
+		minW = cel.minZoomWidth, minH = cel.minZoomHeight, p = $(cel).parent('.panzoom'), pW = p.width(), pH = p.height(), psw = p.parent('.page-scale-wrap'),
+		scale = psw.length && getCurrentScale(psw) != 1 ? getCurrentScale(psw) : getCurrentScale($('#container')),
+		pOffset = p[0].getBoundingClientRect(), mx = (e.clientX - pOffset.x)/scale, my = (e.clientY - pOffset.y)/scale;
+		cel.origW ||= minW;
+		cel.origH ||= minH;
+		cel.wval = cw > cel.origW ? cel.origW : cw * 1.5;
+		cel.hval = ch > cel.origH ? cel.origH : ch * 1.5;
+		var newX = cw > cel.origW ? cel.xval/1.5 + mx/1.5 - pW/2 : 1.5*cel.xval - mx*1.5 + pW/2, 
+		newY = cw > cel.origH ? cel.yval/1.5 - my/1.5 + pH/2 : 1.5*cel.yval - my*1.5 + pH/2;
+		cel.reposition(newX, newY);
+	}).swipe({
+		pinchStatus: function (event, phase, direction, distance, duration, fingerCount, pinchZoom) {
+			if(fingerCount === 2) event.preventDefault();
+			if(direction == 'out') distance *= -1;
+			var p = $(this).addClass('dragging'), c = p.find('.content'), cel = c[0], cw = c.width(), ch = c.height(),
+				targW = cw + distance * .5, targH = ch + distance * .5, minW = cel.minZoomWidth, minH = cel.minZoomHeight;
+			cel.wval = (targW < minW) ? minW : ((targW > cel.maxW) ? cel.maxW : targW);
+			cel.hval = (targH < minH) ? minH : ((targW > ch) ? ch : targH);
+			newX = (minW - cel.wval) - cel.xval,
+				newY = (minH - cel.hval) - cel.yval;
+			cel.reposition(cel.xval, cel.yval);
+		}, fingers: 2
+	});
+	$('.panzoom > .content').on(pointerEnabled ? 'pointerdown' : 'vmousedown', function (ev) {
+		ev.preventDefault();
+		var e = ev.type.indexOf('pointer')>-1?ev.originalEvent:ev;
+		var tstamp = new Date().getTime();
+		if(tstamp - this.stamp < 500){ return !1; }
+		this.stamp = tstamp;
+		var j = $(this), pos = j.position(), p = j.parent('.panzoom').addClass('dragging').first();
+		this.minX = p.width() - j.width(), this.minY = p.height() - j.height(),
+			this.startX = e.pageX, this.startY = e.pageY, psw = p.parent('.page-scale-wrap'),
+			this.scale = psw.length && getCurrentScale(psw) != 1 ? getCurrentScale(psw) : getCurrentScale($('#container')),
+			this.originX = pos.left, this.originY = pos.top, this.drag = !0;
+	}).on('vmousemove pointermove touchmove mousemove', function (ev) {
+		ev.preventDefault();
+		var e = ev.type.indexOf('pointer') > -1 ? ev.originalEvent : ev;
+		if(!this.drag) return !1;
+		var pageX = (e.pageX != undefined) ? e.pageX : e.originalEvent.touches[0].pageX;
+		var pageY = (e.pageY != undefined) ? e.pageY : e.originalEvent.touches[0].pageY;
+		var newX = this.originX + (pageX - this.startX);
+		var newY = this.originY + (pageY - this.startY);
+		this.reposition(newX / this.scale, newY / this.scale);
+	}).on('vmouseup pointerup vmouseout mouseleave', function(e){ this.drag = !1; }).each(function(index, el) {
+		var calculatePosition = function(){
+			var c = $(el), p = c.parent('.panzoom').removeClass('dragging'), cw = el.width, ch = el.height,
+			pos = c.position(), ph = p.height(), minHW = ph / c.height() * cw;
+			el.minW = el.minZoomWidth = el.origW || ((minHW > cw) ? minHW : cw),
+			el.minH = el.minZoomHeight = el.origW || ((minHW > cw) ? minHW : ch),
+			el.startW = cw,
+			el.stamp = new Date().getTime(), el.xval = pos.left, el.yval = pos.top,
+			el.wval = el.width, el.hval = el.height, el.minW = p.width(), el.maxW = parseInt(c.css('max-width'));
+				el.reposition=function(newX, newY){
+				var j = $(this), p = j.parent('.panzoom').removeClass('dragging').first();
+				this.minX = p.width() - this.wval;
+				this.minY = p.height() - this.hval;
+				this.xval = (newX > 0) ? 0 : ((newX < this.minX) ? this.minX : newX);
+				this.yval = (newY > 0) ? 0 : ((newY < this.minY) ? this.minY : newY);
+				j.attr('style', 'left:' + this.xval + "px !important;top:" + this.yval + "px !important; width:" + this.wval + "px !important;");
+			};
+		};
+		if(lazyLoad){ $(el).on('load',function(){ calculatePosition(); }); }
+		else{ calculatePosition(); };
+		$(document).on('pageRendered',function(){ if($(el).parents('.activePage').length){calculatePosition();} });
+		$(document).on('newState', function(){ calculatePosition(); });
+	});
 }
 function iOSversion() {
 	if (/iP(hone|od|ad)/.test(navigator.platform)) {
@@ -790,7 +860,7 @@ function getOrientation() {
 }
 
 function addNavProps(){
-	if(nav.numPages === undefined) nav.numPages=3;
+	if(nav.numPages === undefined) nav.numPages=8;
 	nav.rtl = $('#slider').attr('data-dir') == 'rtl';
 	if(nav.rtl) $('html').attr('data-dir', 'rtl');
 	nav.init = function() { setTimeout(function(){nav.to(getStartPage());},1); };

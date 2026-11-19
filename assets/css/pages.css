@@ -442,35 +442,77 @@ ul.thumbs > li img { box-shadow:0 0 4px rgba(0, 0, 0, 0.5); }
 body, #container-wrap { background:#ededed; }
 :-webkit-full-screen { background:#ededed; }
 #loadIndicator span:after { padding-left:1ex; content:'loading content...'; }
-.page-scale-wrap { width:595px; height:842px; background: #fff !important; }
-.paper-vertical { width:595px; height:100%; }
-.paper-horizontal { width:1816px; height:854px; }
-@media all and (max-height:842px) {
+.page-scale-wrap { width:1024px; height:768px; background: #fff !important; }
+.paper-vertical { width:1024px; height:100%; }
+.paper-horizontal { width:8272px; height:780px; }
+@media all and (max-height:768px) {
 	.paper-horizontal { margin:0;top:0;}
 	#container > .page { margin:0 auto;}/*pos top for webkit+baker*/
 }
-@media all and (max-width:595px) {
+@media all and (max-width:1024px) {
 	.paper-vertical .page, .paper-horizontal .page, .anythingSlider-in5 { padding:0;top:0;border:0; }
 	.paper-vertical, .paper-horizontal { padding:0; }
 }
 
-#item278 {
-	width:529px !important;
-	height:252px !important;
-	left:33px !important;
-	top:134px !important;
+#item338 {
+	width:567px !important;
+	height:379px !important;
+	left:116px !important;
+	top:124px !important;
 }
 
-#item827 {
+#item380 {
 	width:565px !important;
 	height:800px !important;
-	left:21px !important;
-	top:14px !important;
+	left:182px !important;
+	top:-9px !important;
 }
 
-#item885 {
-	width:404px !important;
-	height:404px !important;
-	left:62px !important;
-	top:120px !important;
+.panzoom > #item439_0 {
+	width:737px !important;
+	max-width:1474px;
+	left:-157px !important;
+	top:-137px !important;
+}
+
+#item439 {
+	width:424px !important;
+	height:278px !important;
+	left:262px !important;
+	top:192px !important;
+}
+
+#item526 {
+	width:268px !important;
+	height:171px !important;
+	left:388px !important;
+	top:225px !important;
+}
+
+#item679 {
+	width:396px !important;
+	height:227px !important;
+	left:150px !important;
+	top:112px !important;
+}
+
+#item742 {
+	width:360px !important;
+	height:190px !important;
+	left:314px !important;
+	top:105px !important;
+}
+
+#item804_container {
+	width:911px !important;
+	height:655px !important;
+	left:57px !important;
+	top:57px !important;
+}
+
+#item839 {
+	width:523px !important;
+	height:490px !important;
+	left:222px !important;
+	top:113px !important;
 }
